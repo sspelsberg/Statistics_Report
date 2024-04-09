@@ -1,0 +1,19 @@
+parameter,unit, description
+pva200m0,hPa,Vapour pressure 2 m above ground; monthly mean
+ets150m0,mm,Evapotranspiration; monthly total
+nto000m0,%,Total cloud cover; monthly mean
+gre000m0,W/m2,Global radiation; monthly mean
+prestam0,hPa,Atmospheric pressure at barometric altitude (QFE); monthly mean
+tre200mx,.C,Air temperature 2 m above ground; absolute monthly maximum
+tre200mn,.C,Air temperature 2 m above ground; absolute monthly minimum
+tre200m0,.C,Air temperature 2 m above ground; monthly mean
+tre005mn,.C,Air temperature at 5 cm above grass; absolute monthly minimum
+hns000m0,cm,Fresh snow; monthly total of the daily measurements
+rre150m0,mm,Precipitation; monthly total
+ure200mn,%,Relative air humidity 2 m above ground; monthly minimum
+ure200m0,%,Relative air humidity 2 m above ground; monthly mean
+hto000m0,cm,Snow depth; monthly mean
+su2000m0,h,Sunshine duration; monthly total
+sremaxmv,%,Sunshine duration; relation of the monthly total to the possible maximum
+fkl010m0,m/s,Wind speed scalar; monthly mean
+tso010m0,.C,Soil temperature at 10 cm depth; monthly mean
