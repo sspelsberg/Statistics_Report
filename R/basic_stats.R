@@ -13,9 +13,16 @@
 
 library(tidyverse) # dplyr etc.
 library(ggplot2)
+library(plotly) # also for graphics
+library(GGally) # also for graphics
+library(sf) # for spatial classes
+library(rnaturalearth) # for world maps etc
+library(rnaturalearthdata) # for world maps etc
 library(viridis) # viridis colorscales for ggplot
 library(MVN) # multivariate normality checks
 library(lubridate) # datetime objects
+
+theme_set(theme_bw()) # set ggplot theme
 
 
 # load data -----------------------
@@ -29,6 +36,23 @@ station_metadata <- read.csv("data_clean/station_metadata.csv")
 variables_metadata <- read.table("metadata/variables_metadata.txt", header = T, sep = ",")
 station_names <- readRDS("data_clean/station_names.rds")
 variables <- readRDS("data_clean/variables.rds")
+
+print(variables_metadata)
+
+# data formating --------------------
+
+# data in a long format (for some plots)
+data_long <- data |>
+  pivot_longer(cols = c(4:21),
+               names_to = "variable",
+               values_to = "value")
+
+# order station column by elevation (long and short data format)
+data_long$stn <- factor(data_long$stn,
+                        levels = (station_metadata |> arrange(elev))$stn) # reads the station names ordered by elev
+
+data$stn <- factor(data$stn,
+                   levels = (station_metadata |> arrange(elev))$stn)
 
 
 # stats summary -------------------------
@@ -46,9 +70,18 @@ data_stats <- data |>
                    snow_annual = mean(hns000m0, na.rm = T)*12)
 
 
+# first date for every station
+data |>
+  group_by(stn) |>
+  arrange(time) |>
+  slice(1L)
+
+
+# easy summary plots -----------------
+
 # filter out rows with missing values for Plot
 data_stats |>
-  filter(!is.na(precip_annual)) |>
+  dplyr::filter(!is.na(precip_annual)) |>
 
   # scatterplot temperature vs precipitation
   ggplot(aes(x=temp_mean, y=precip_annual, color=elev, label=stn)) +
@@ -58,5 +91,29 @@ data_stats |>
     theme_classic() +
     labs(x="Mean temperature [°C]",
          y="Mean annual precipitation [mm]")
+
+
+# scatterplot matrix with mean values for the stations
+data_stats |>
+  dplyr::select(!stn) |>
+  ggpairs()
+
+
+# violin plot by station (stations ordered by elevation)
+data_long |>
+  filter(variable == "tre200m0" | variable == "gre000m0") |>  # select here the variables you want to compare
+  ggplot(aes(x=stn, y=value, fill=elev)) +
+    geom_violin() +
+    facet_wrap(~variable, scales = "free") + # create distinct panels for each variable
+    scale_fill_viridis(direction = -1) # reversed viridis color scheme
+
+
+# plot map of the stations
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+ggplot(data=world) +
+  geom_sf() +
+  coord_sf(xlim = c(5.5, 10.5), ylim = c(45.5, 48), expand = FALSE) +
+  geom_point(data = station_metadata, aes(x=lon, y=lat))
 
 
