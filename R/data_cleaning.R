@@ -27,6 +27,10 @@ stations <- lapply(filepaths, read.table, header = T, sep = ";")
 station_metadata_long <- read.table("metadata/Station_metadata_long.txt", header = T)
 variables_metadata <- read.table("metadata/variables_metadata.txt", header = T, sep = ",")
 
+# get additional metadata with correct coordinates
+stations_new_coordinates <- read.csv("data_raw/norm_period_station_metadata.csv", header = T, sep = ";")
+
+
 
 # clean climate data ---------------------
 
@@ -54,18 +58,28 @@ data |>
 # clean metadata -------------------------
 
 # only keep one row per station with name, elevation and coordinates
-station_metadata <- station_metadata_long |>
+station_metadata_wrong <- station_metadata_long |>
   dplyr::distinct(stn, name, lonlat, coord, elev) |>
   dplyr::arrange(stn)
 
 # add elevation to climate data
-data <- left_join(station_metadata |> select(stn, elev), data)
+data <- left_join(station_metadata_wrong |> select(stn, elev), data)
 
 # save station names and meteorological variables
 station_names <- unique(data$stn)
 variables <- names(data |> select(!stn & !time & !elev)) # colnames without station name, elevation & time
 
+# get correct coordinates from additional metadata
 
+station_metadata <- stations_new_coordinates |>
+
+  # extract only stations from our dataset
+  filter(nat_abbr %in% station_metadata_wrong$stn) |> # JUN jungfraujoch is omitted
+  select(1:10) |>  # cut off uneccessary info
+  rename(stn = nat_abbr,
+         elev = height,
+         climate_region = climate.region,
+         climate_region_nr = climate.region.nr)
 
 # save data -------------------------------
 

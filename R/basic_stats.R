@@ -7,12 +7,14 @@
 # You can find ***INFO ON VARIABLE AND STATION NAMES*** in
 # variables_metadata and station_metadata
 
-
+scico_palette_show()
 
 # packages -----------------------
 
 library(tidyverse) # dplyr etc.
 library(ggplot2)
+library(RColorBrewer)
+library(scico)
 library(plotly) # also for graphics
 library(GGally) # also for graphics
 library(sf) # for spatial classes
@@ -114,6 +116,6 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 ggplot(data=world) +
   geom_sf() +
   coord_sf(xlim = c(5.5, 10.5), ylim = c(45.5, 48), expand = FALSE) +
-  geom_point(data = station_metadata, aes(x=lon, y=lat))
-
+  geom_point(data = station_metadata, aes(x=lon, y=lat, color=elev)) +
+  scale_color_scico(palette = "lajolla", direction = -1, begin = 0.3, end = 0.9)
 
