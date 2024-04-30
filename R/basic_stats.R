@@ -7,7 +7,6 @@
 # You can find ***INFO ON VARIABLE AND STATION NAMES*** in
 # variables_metadata and station_metadata
 
-scico_palette_show()
 
 # packages -----------------------
 
@@ -69,7 +68,11 @@ data_stats <- data |>
                    precip_annual = mean(rre150m0, na.rm = T)*12,
                    press_mean = mean(pva200m0, na.rm = T),
                    rad_mean = mean(gre000m0, na.rm = T),
-                   snow_annual = mean(hns000m0, na.rm = T)*12)
+                   snow_annual = mean(hns000m0, na.rm = T)*12) |>
+  dplyr::filter(!is.na(precip_annual)) # omit rows with missing values for precipitation (drops JUNGFRAUJOCH)
+
+# add lon lat to data_stats
+data_stats <- left_join(station_metadata |> select(stn, lon, lat), data_stats)
 
 
 # first date for every station
@@ -81,11 +84,8 @@ data |>
 
 # easy summary plots -----------------
 
-# filter out rows with missing values for Plot
+# scatterplot temperature vs precipitation
 data_stats |>
-  dplyr::filter(!is.na(precip_annual)) |>
-
-  # scatterplot temperature vs precipitation
   ggplot(aes(x=temp_mean, y=precip_annual, color=elev, label=stn)) +
     geom_point() +
     geom_text(hjust=-0.2, vjust=0) + # add text labels
@@ -111,11 +111,20 @@ data_long |>
 
 
 # plot map of the stations
-world <- ne_countries(scale = "medium", returnclass = "sf")
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 
-ggplot(data=world) +
-  geom_sf() +
-  coord_sf(xlim = c(5.5, 10.5), ylim = c(45.5, 48), expand = FALSE) +
+ggplot() +
+  geom_sf(data = world, colour = 'black', fill = "white", size = 0.2) +
+  coord_sf(xlim = c(5.8, 10.5), ylim = c(45.7, 47.8), expand = FALSE) +
+  labs(x = "", y = "") +
+
+  # add datapoints
   geom_point(data = station_metadata, aes(x=lon, y=lat, color=elev)) +
   scale_color_scico(palette = "lajolla", direction = -1, begin = 0.3, end = 0.9)
+
+
+
+# save data ---------------------
+
+write_csv(data_stats, "data_clean/data_stats.csv")
 
