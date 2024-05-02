@@ -62,6 +62,7 @@ var_explained <- precip.pca$sdev^2 / sum(precip.pca$sdev^2)
 
 qplot(c(1:p), var_explained) +
   geom_col() +
+
   geom_text(aes(label = round(var_explained, 2)), vjust = -0.5) +
   xlab("Principal Component") +
   ylab("Variance Explained") +
@@ -72,3 +73,8 @@ qplot(c(1:p), var_explained) +
 precip.weights <- data.frame(precip.pca$rotation)
 pc1SortedWeights <- precip.weights[order(precip.weights[, 1], decreasing = TRUE),][, 1, drop = F]
 pc2SortedWeights <- precip.weights[order(precip.weights[, 2], decreasing = TRUE),][, 2, drop = F]
+
+# plot the PCs
+
+biplot(precip.pca)
+
