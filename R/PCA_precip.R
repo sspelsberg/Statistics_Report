@@ -45,10 +45,30 @@ pivot_data <- data_selected %>%
 
 # remove Jungfrau data
 
-pivot_data <- pivot_data |> select(!JUN)
+pivot_data <- pivot_data |> select(c(-JUN, -time))
 
 
 # Display the transformed dataframe
 print(pivot_data)
 
+p <- ncol(pivot_data) # number of stations
 
+# standardize data (not sure it's really necessary, but prob yes because variance should not be equal btw stations)
+scaled_data <- scale(pivot_data)
+
+precip.pca <- prcomp(scaled_data)
+summary(precip.pca)
+var_explained <- precip.pca$sdev^2 / sum(precip.pca$sdev^2)
+
+qplot(c(1:p), var_explained) +
+  geom_col() +
+  geom_text(aes(label = round(var_explained, 2)), vjust = -0.5) +
+  xlab("Principal Component") +
+  ylab("Variance Explained") +
+  ggtitle("Scree Plot") +
+  ylim(0, 1)
+
+
+precip.weights <- data.frame(precip.pca$rotation)
+pc1SortedWeights <- precip.weights[order(precip.weights[, 1], decreasing = TRUE),][, 1, drop = F]
+pc2SortedWeights <- precip.weights[order(precip.weights[, 2], decreasing = TRUE),][, 2, drop = F]
