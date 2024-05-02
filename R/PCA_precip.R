@@ -36,12 +36,19 @@ summ_data <- summary(data)
 print(summ_data)
 
 
-# Select only the necessary columns
+# Select only the necessary columns for precip PCA
 data_selected <- data %>% select(time, stn, rre150m0)
 
 # Pivot the dataframe
 pivot_data <- data_selected %>%
   pivot_wider(names_from = stn, values_from = rre150m0)
 
+# remove Jungfrau data
+
+pivot_data <- pivot_data |> select(!JUN)
+
+
 # Display the transformed dataframe
 print(pivot_data)
+
+
