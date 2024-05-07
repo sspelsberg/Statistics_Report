@@ -54,12 +54,14 @@ print(pivot_data)
 p <- ncol(pivot_data) # number of stations
 
 # standardize data (not sure it's really necessary, but prob yes because variance should not be equal btw stations)
+# SOPHIE: scaling is necessary for PCA (at least if the ranges of the variables are very different, but this is probably not given here)
 scaled_data <- scale(pivot_data)
 
 precip.pca <- prcomp(scaled_data)
 summary(precip.pca)
 var_explained <- precip.pca$sdev^2 / sum(precip.pca$sdev^2)
 
+# scree plot
 qplot(c(1:p), var_explained) +
   geom_col() +
 
@@ -78,3 +80,4 @@ pc2SortedWeights <- precip.weights[order(precip.weights[, 2], decreasing = TRUE)
 
 biplot(precip.pca)
 
+precip.weights
