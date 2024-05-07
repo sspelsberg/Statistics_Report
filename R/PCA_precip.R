@@ -81,3 +81,13 @@ pc2SortedWeights <- precip.weights[order(precip.weights[, 2], decreasing = TRUE)
 biplot(precip.pca)
 
 precip.weights
+
+
+# select PCAs ----------
+
+# mean amount of variance explained by one variable
+100 / 19 # 5.26
+
+# would result in first 4 PCAs
+
+# Kaiser's rule (variance explained >1 would result in first 8 PCAs)
