@@ -5,6 +5,7 @@
 
 
 # packages -----------------------
+install.packages("dendextend")
 
 library(tidyverse) # dplyr etc.
 library(ggplot2)
@@ -18,6 +19,7 @@ library(rnaturalearthdata) # for world maps etc
 library(viridis) # viridis colorscales for ggplot
 library(MVN) # multivariate normality checks
 library(lubridate) # datetime objects
+library(dendextend) # for dendrogram visualization
 
 theme_set(theme_bw()) # set ggplot theme
 
@@ -43,16 +45,24 @@ set.seed(200) # for reproducibility
 # cluster the data based on longitude and latitude
 cluster_lonlat <- kmeans(
   station_metadata |> dplyr::select(lon,lat),
-  centers = 5)
+  centers = 4)
 
-# cluster the data based on all data_stats variables
+# cluster the data based on all data_stats variables (temp, precip...)
 cluster_stats <- kmeans(
   data_stats |> dplyr::select(!stn),
-  centers = 5)
+  centers = 4)
 
-# add the cluster information to the original dataframes
-station_metadata$cluster_lonlat <- factor(cluster_lonlat$cluster)
-data_stats$cluster_stats <- factor(cluster_stats$cluster)
+# cluster the data based on Precipitation PCA
+cluster_pca <- kmeans(
+  precip.pca$rotation[,1:4],
+  centers = 4)
+
+# add the cluster information to the metadata
+station_metadata <- station_metadata |>
+  mutate(cluster_lonlat_kmeans = factor(cluster_lonlat$cluster),
+         cluster_pca_kmeans = factor(cluster_pca$cluster),
+         cluster_stats_kmeans = factor(cluster_stats$cluster))
+
 
 
 # plot kmeans clusters ---------------------
@@ -68,19 +78,64 @@ plot_swiss_map <- ggplot() +
 
 # show lonlat clusters
 plot_swiss_map +
-  geom_point(data = station_metadata, aes(x = lon, y = lat, color = cluster_lonlat), size = 1) +
+  geom_point(data = station_metadata, aes(x = lon, y = lat, color = cluster_lonlat_kmeans), size = 1) +
   scale_color_brewer(palette = "Set1")
 
 # show data_stats clusters
 plot_swiss_map +
-  geom_point(data = data_stats, aes(x = lon, y = lat, color = cluster_stats), size = 1) +
+  geom_point(data = station_metadata, aes(x = lon, y = lat, color = cluster_stats_kmeans), size = 1) +
   scale_color_brewer(palette = "Set1")
+
+# show pca kmeans clusters
+plot_swiss_map +
+  geom_point(data = station_metadata, aes(x = lon, y = lat, color = cluster_pca_kmeans), size = 1) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Kmeans precipitation PCA clustering",
+       color = "Cluster") # change legend title
 
 
 # Better visualisation in multivariate predictor space - or with first two Principal components! as in Script page 11-10
 
 
 
-# clustering from exercise -------------------------
+# hierarchical clustering -------------------------
+
+# correlation between original variables and PCs is given by loading matrix (if the data was scaled before)
+# read more here https://stats.stackexchange.com/questions/115032/how-to-find-which-variables-are-most-correlated-with-the-first-principal-compone
+# hclust in R https://www.datacamp.com/tutorial/hierarchical-clustering-R
 
 
+# loadings
+loadings <- precip.pca$rotation[,1:4]
+
+# compute distance matrix
+dist_mat <- dist(loadings, method = 'euclidean')
+
+# build hierarchical clusters
+station_cluster <- hclust(dist_mat, method = 'complete')
+plot(station_cluster)
+
+# split into k clusters
+cluster_cut <- cutree(station_cluster, k = 4)
+
+# add cluster to station metadata
+station_metadata <- station_metadata |>
+  mutate(cluster_pca_h = as.factor(cluster_cut))
+
+
+# visualize the clusters ---------------------------
+
+# plot the clusters in the dendrogram
+station_dendro <- as.dendrogram(station_cluster)
+station_dendro_col <- color_branches(station_dendro, k = 4) # 4 clusters
+plot(station_dendro_col)
+
+
+# plot clusters in map
+plot_swiss_map +
+  geom_point(data = station_metadata, aes(x=lon, y=lat, color=cluster_pca_h)) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Hierarchical precipitation PCA clustering",
+       color = "Cluster") # change legend title
+
+# same result as kmeans!!
