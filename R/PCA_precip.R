@@ -154,10 +154,18 @@ for (i in 1:4) {
 
   p <- ggplot(pc_data, aes(x = reorder(Sample, value), y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge") +
-    labs(title = pc, x = "Station", y = "PCA weights") +
+    labs(title = pc, x = "", y = "") +
     scale_fill_manual(values = rainbow(1)) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+  if (i %in% c(3, 4)) {
+    p <- p + labs(x = "Samples")  # Add x-axis label "Samples" to the bottom plots
+  }
+
+  if (i %in% c(1, 3)) {
+    p <- p + labs(y = "PCA weights")  # Add y-axis label "PCA weights" to the left plots
+  }
 
   plots[[i]] <- p
 }
