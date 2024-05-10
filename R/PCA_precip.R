@@ -18,6 +18,7 @@ library(lubridate) # datetime objects
 library(mice) # data imputation
 
 
+
 theme_set(theme_bw()) # set ggplot theme
 
 # load data -----------------------
@@ -80,6 +81,11 @@ pc2SortedWeights <- precip.weights[order(precip.weights[, 2], decreasing = TRUE)
 
 biplot(precip.pca)
 
+# biplot without sample points
+biplot(precip.pca, cex = 0, xlabs = rep("", nrow(scaled_data)),
+       xlim = c(0,0.25))
+
+
 precip.weights
 
 
@@ -91,3 +97,49 @@ precip.weights
 # would result in first 4 PCAs
 
 # Kaiser's rule (variance explained >1 would result in first 8 PCAs)
+
+
+# plotting the loadings of each station for the first 4 PCs
+
+rotation_matrix <- precip.pca$rotation[, 1:4]
+
+rotation_df <- as.data.frame(rotation_matrix) %>%
+  rownames_to_column(var = "Sample")
+
+# Reshape the data to long format using gather (tidyr)
+rotation_df_long <- rotation_df %>%
+  gather(key = "variable", value = "value", -Sample)
+
+# Plot each principal component separately by sample
+for (i in 1:4) {
+  pc <- paste0("PC", i)
+  pc_data <- rotation_df_long %>%
+    filter(variable == pc)
+
+  p <- ggplot(pc_data, aes(x = Sample, y = value, fill = variable)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = pc, x = "Samples", y = "PCA weights") +
+    scale_fill_manual(values = rainbow(1)) +
+    theme_minimal() +
+    theme(axis.ticks.x = element_blank())
+
+  print(p)
+}
+
+
+# Plot each principal component separately by value
+for (i in 1:4) {
+  pc <- paste0("PC", i)
+  pc_data <- rotation_df_long %>%
+    filter(variable == pc) %>%
+    arrange(abs(value))  # Arrange by the absolute values of 'value'
+
+  p <- ggplot(pc_data, aes(x = reorder(Sample, value), y = value, fill = variable)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = pc, x = "Samples", y = "PCA weights") +
+    scale_fill_manual(values = rainbow(1)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+  print(p)
+}
