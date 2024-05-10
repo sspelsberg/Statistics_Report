@@ -16,7 +16,7 @@ library(viridis) # viridis colorscales for ggplot
 library(MVN) # multivariate normality checks
 library(lubridate) # datetime objects
 library(mice) # data imputation
-
+library(gridExtra) # grid plots
 
 
 theme_set(theme_bw()) # set ggplot theme
@@ -110,7 +110,9 @@ rotation_df <- as.data.frame(rotation_matrix) %>%
 rotation_df_long <- rotation_df %>%
   gather(key = "variable", value = "value", -Sample)
 
+
 # Plot each principal component separately by sample
+plots <- list()
 for (i in 1:4) {
   pc <- paste0("PC", i)
   pc_data <- rotation_df_long %>%
@@ -118,16 +120,29 @@ for (i in 1:4) {
 
   p <- ggplot(pc_data, aes(x = Sample, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge") +
-    labs(title = pc, x = "Samples", y = "PCA weights") +
+    labs(title = pc, x = "", y = "") +
     scale_fill_manual(values = rainbow(1)) +
     theme_minimal() +
-    theme(axis.ticks.x = element_blank())
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          axis.ticks.x = element_blank())+
+    guides(fill=F)
 
-  print(p)
+  if (i %in% c(3, 4)) {
+    p <- p + labs(x = "Samples")  # Add x-axis label "Samples" to the bottom plots
+  }
+
+  if (i %in% c(1, 3)) {
+    p <- p + labs(y = "PCA weights")  # Add y-axis label "PCA weights" to the left plots
+  }
+
+
+  plots[[i]] <- p
 }
 
+grid.arrange(grobs=plots, ncol=2)
 
 # Plot each principal component separately by value
+plots <- list()
 for (i in 1:4) {
   pc <- paste0("PC", i)
   pc_data <- rotation_df_long %>%
@@ -136,10 +151,12 @@ for (i in 1:4) {
 
   p <- ggplot(pc_data, aes(x = reorder(Sample, value), y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge") +
-    labs(title = pc, x = "Samples", y = "PCA weights") +
+    labs(title = pc, x = "Station", y = "PCA weights") +
     scale_fill_manual(values = rainbow(1)) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
 
-  print(p)
+  plots[[i]] <- p
 }
+
+grid.arrange(grobs=plots, ncol=2)
