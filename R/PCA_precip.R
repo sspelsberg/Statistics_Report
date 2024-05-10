@@ -113,6 +113,9 @@ rotation_df_long <- rotation_df %>%
 
 # Plot each principal component separately by sample
 plots <- list()
+#color palette setting
+viridis_palette <- viridis_pal(begin=0.1,end=0.4)(4)
+
 for (i in 1:4) {
   pc <- paste0("PC", i)
   pc_data <- rotation_df_long %>%
@@ -121,7 +124,7 @@ for (i in 1:4) {
   p <- ggplot(pc_data, aes(x = Sample, y = value, fill = variable)) +
     geom_bar(stat = "identity", position = "dodge") +
     labs(title = pc, x = "", y = "") +
-    scale_fill_manual(values = rainbow(1)) +
+    scale_fill_manual(values = viridis_palette[i]) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
           axis.ticks.x = element_blank())+
