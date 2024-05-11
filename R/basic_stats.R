@@ -95,9 +95,20 @@ data_stats |>
          y="Mean annual precipitation [mm]")
 
 
+# scatterplot
+data |>
+  dplyr::select(rre150m0, # precip
+                prestam0, # pressure
+                tre200m0, # temp
+                ure200m0, # humidity
+                fkl010m0  # wind speed
+                ) |>
+  ggpairs()
+
+
 # scatterplot matrix with mean values for the stations
 data_stats |>
-  dplyr::select(!stn) |>
+  dplyr::select(!stn & !snow_annual & !rad_mean) |>
   ggpairs()
 
 

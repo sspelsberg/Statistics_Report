@@ -4,6 +4,10 @@
 # here we apply different clustering algorithms
 
 
+# QUESTION: is it possible to include the PCs in a weighted way into the clustering?
+# Maybe multiply by amount of variance they account for?
+# http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/117-hcpc-hierarchical-clustering-on-principal-components-essentials/
+
 # packages -----------------------
 install.packages("dendextend")
 
@@ -42,17 +46,17 @@ variables <- readRDS("data_clean/variables.rds")
 
 set.seed(200) # for reproducibility
 
-# cluster the data based on longitude and latitude
+# cluster based on longitude and latitude
 cluster_lonlat <- kmeans(
   station_metadata |> dplyr::select(lon,lat),
   centers = 4)
 
-# cluster the data based on all data_stats variables (temp, precip...)
+# cluster based on all data_stats variables (temp, precip...)
 cluster_stats <- kmeans(
   data_stats |> dplyr::select(!stn),
   centers = 4)
 
-# cluster the data based on Precipitation PCA
+# cluster based on Precipitation PCA
 cluster_pca <- kmeans(
   precip.pca$rotation[,1:4],
   centers = 4)
@@ -107,6 +111,8 @@ plot_swiss_map +
 
 # loadings
 loadings <- precip.pca$rotation[,1:4]
+loadings_df <- data.frame(loadings)
+loadings_df$stn = row.names(loadings_df)
 
 # compute distance matrix
 dist_mat <- dist(loadings, method = 'euclidean')
@@ -139,3 +145,17 @@ plot_swiss_map +
        color = "Cluster") # change legend title
 
 # same result as kmeans!!
+
+
+# visualize loadings for the 4 PCA depending on station ------------
+
+# create dataframe with station metadata and loadings
+station_metadata_pca <- left_join(station_metadata, loadings_df)
+
+plot_swiss_map +
+  geom_point(data = station_metadata_pca, aes(x=lon, y=lat, color=PC1)) +
+  scale_color_viridis()
+#  labs(title = "PC3 loadings",
+#       color = "loading") # change legend title
+
+scico_palette_show()
