@@ -40,6 +40,8 @@ variables <- readRDS("data_clean/variables.rds")
 
 print(variables_metadata)
 
+station_metadata
+
 # data formating --------------------
 
 # data in a long format (for some plots)

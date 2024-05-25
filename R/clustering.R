@@ -62,7 +62,7 @@ cluster_pca <- kmeans(
   centers = 4)
 
 # add the cluster information to the metadata
-station_metadata <- station_metadata |>
+station_metadata_cluster <- station_metadata |>
   mutate(cluster_lonlat_kmeans = factor(cluster_lonlat$cluster),
          cluster_pca_kmeans = factor(cluster_pca$cluster),
          cluster_stats_kmeans = factor(cluster_stats$cluster))
@@ -114,19 +114,31 @@ loadings <- precip.pca$rotation[,1:4]
 loadings_df <- data.frame(loadings)
 loadings_df$stn = row.names(loadings_df)
 
+# create df with weighted PCs (multiply by amount of variance they account for) for clustering
+# var_explained from precip.pca script does that
+loadings_weighted <- t(t(loadings) * var_explained[1:4]) # transpose for correct multiplication
+loadings_df_weighted <- data.frame(loadings_weighted)
+loadings_df_weighted$stn = row.names(loadings_weighted)
+
 # compute distance matrix
 dist_mat <- dist(loadings, method = 'euclidean')
+dist_mat_weighted <- dist(loadings_weighted, method = 'euclidean')
 
 # build hierarchical clusters
 station_cluster <- hclust(dist_mat, method = 'complete')
 plot(station_cluster)
 
+station_cluster_weighted <- hclust(dist_mat_weighted, method = 'complete')
+plot(station_cluster_weighted) # CHD and SMA change cluster, everything else remains similar
+
 # split into k clusters
 cluster_cut <- cutree(station_cluster, k = 4)
+cluster_cut_weighted <- cutree(station_cluster_weighted, k = 4)
 
 # add cluster to station metadata
-station_metadata <- station_metadata |>
-  mutate(cluster_pca_h = as.factor(cluster_cut))
+station_metadata_cluster <- station_metadata_cluster |>
+  mutate(cluster_pca_h = as.factor(cluster_cut),
+         cluster_pca_weighted = as.factor(cluster_cut_weighted))
 
 
 # visualize the clusters ---------------------------
@@ -153,9 +165,18 @@ plot_swiss_map +
 station_metadata_pca <- left_join(station_metadata, loadings_df)
 
 plot_swiss_map +
-  geom_point(data = station_metadata_pca, aes(x=lon, y=lat, color=PC1)) +
+  geom_point(data = station_metadata_pca, aes(x=lon, y=lat, color=PC4)) +
   scale_color_viridis()
 #  labs(title = "PC3 loadings",
 #       color = "loading") # change legend title
 
 scico_palette_show()
+
+
+
+
+# save data ----------
+
+write_csv(station_metadata_cluster, "data_clean/station_metadata_cluster.csv")
+write_csv(station_metadata_pca, "data_clean/station_metadata_pca.csv")
+
