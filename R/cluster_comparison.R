@@ -27,6 +27,10 @@ theme_set(theme_bw()) # set ggplot theme
 data <- read.csv("data_clean/data.csv") |>
   mutate(time = lubridate::ym(time))
 data_stats <- read.csv("data_clean/data_stats.csv")
+data_precip <- read.csv("data_clean/data_precip.csv") |>
+  mutate(cluster_pca_h = as.factor(cluster_pca_h))
+data_precip_annual <- read.csv("data_clean/data_precip_annual.csv") |>
+  mutate(cluster_pca_h = as.factor(cluster_pca_h))
 
 # read metadata
 station_metadata <- read.csv("data_clean/station_metadata.csv")
@@ -77,7 +81,7 @@ data_precip_annual |>
   geom_boxplot() # or geom_violin()
 
 
-# boxplots for every month with individual station data
+# boxplots for every month with individual station data (e.g. 4 station january measurements per year from 20 years)
 data_precip |>
   ggplot(aes(x = cluster_pca_h, y = rre150m0)) +
   geom_boxplot() +
@@ -87,13 +91,20 @@ data_precip |>
 data_precip |>
   ggplot(aes(x = cluster_pca_h, y = precip_cluster_mean_monthly)) +
   geom_boxplot() +
-  facet_wrap(~month(time))
+  facet_wrap(~month)
 
 
-# boxplot to compare annual data between stations for all clusters
+# boxplot for individual annual station measurements within the clusters
 data_precip_annual |>
   ggplot(aes(x = stn, y = precip_annual)) +
   geom_boxplot() +
   facet_wrap(~cluster_pca_h, scales = "free_x")
+
+
+# save data ----------
+
+write_csv(data_precip, "data_clean/data_precip.csv")
+write_csv(data_precip_annual, "data_clean/data_precip_annual.csv")
+
 
 
