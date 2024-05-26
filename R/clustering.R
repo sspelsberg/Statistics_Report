@@ -7,9 +7,12 @@
 # QUESTION: is it possible to include the PCs in a weighted way into the clustering?
 # Maybe multiply by amount of variance they account for?
 # http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/117-hcpc-hierarchical-clustering-on-principal-components-essentials/
+# CLUSTERING ON PCA:
+# https://rpubs.com/Bury/ClusteringOnPcaResults
+
 
 # packages -----------------------
-install.packages("dendextend")
+install.packages("monoClust")
 
 library(tidyverse) # dplyr etc.
 library(ggplot2)
@@ -24,6 +27,7 @@ library(viridis) # viridis colorscales for ggplot
 library(MVN) # multivariate normality checks
 library(lubridate) # datetime objects
 library(dendextend) # for dendrogram visualization
+library(monoClust)
 
 theme_set(theme_bw()) # set ggplot theme
 
@@ -140,6 +144,12 @@ station_metadata_cluster <- station_metadata_cluster |>
   mutate(cluster_pca_h = as.factor(cluster_cut),
          cluster_pca_weighted = as.factor(cluster_cut_weighted))
 
+# add cluster to loadings df
+loadings_df$cluster = as.factor(cluster_cut)
+loadings_df_weighted$cluster = as.factor(cluster_cut_weighted)
+
+# R evaluate ideal number of clusters via inertia? no function found
+
 
 # visualize the clusters ---------------------------
 
@@ -148,6 +158,22 @@ station_dendro <- as.dendrogram(station_cluster)
 station_dendro_col <- color_branches(station_dendro, k = 4) # 4 clusters
 plot(station_dendro_col)
 
+
+# plot clusters in 3D scatterplot
+plot_ly(x = loadings_df$PC4,
+        y = loadings_df$PC2,
+        z = loadings_df$PC3,
+        type = "scatter3d",
+        mode = "markers",
+        color = loadings_df$cluster)
+
+# plot weighted clusters in 3D scatterplot
+plot_ly(x = loadings_df_weighted$PC1,
+        y = loadings_df_weighted$PC2,
+        z = loadings_df_weighted$PC3,
+        type = "scatter3d",
+        mode = "markers",
+        color = loadings_df_weighted$cluster)
 
 # plot clusters in map
 plot_swiss_map +

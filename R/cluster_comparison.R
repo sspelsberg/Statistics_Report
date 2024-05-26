@@ -20,7 +20,7 @@ library(lubridate) # datetime objects
 
 theme_set(theme_bw()) # set ggplot theme
 
-
+precip.pca$sdev^2
 # load data -----------------------
 
 # read meteorological data and turn time into timestamp
@@ -90,6 +90,11 @@ data_clim_diagram |>
   theme(panel.grid.major = element_blank()) # remove parts of the grid
 
 
+# compute annual mean temp and precip sum
+data_clim_diagram |>
+  dplyr::group_by(cluster_pca_h) |>
+  dplyr::summarise(annual_temp = mean(mean_temp),
+            annual_precip = sum(mean_precip))
 
 
 # Boxplots for cluster comparison ----------------------
