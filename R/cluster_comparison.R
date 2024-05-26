@@ -83,14 +83,17 @@ data_precip |>
   geom_boxplot() +
   facet_wrap(~month(time))
 
-
-# compare data between stations for all clusters
+# boxplots for every month with cluster mean data (e.g. 20 january cluster means from different years)
 data_precip |>
-  filter(month(time) == 1) |>
-
-  # plot boxplot by cluster
-  ggplot(aes(x = stn, y = rre150m0)) +
+  ggplot(aes(x = cluster_pca_h, y = precip_cluster_mean_monthly)) +
   geom_boxplot() +
-  facet_wrap(~cluster, scales = "free_x")
+  facet_wrap(~month(time))
+
+
+# boxplot to compare annual data between stations for all clusters
+data_precip_annual |>
+  ggplot(aes(x = stn, y = precip_annual)) +
+  geom_boxplot() +
+  facet_wrap(~cluster_pca_h, scales = "free_x")
 
 
