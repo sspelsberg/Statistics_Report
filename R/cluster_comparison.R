@@ -75,6 +75,11 @@ data_clim_diagram <- data_precip |>
   dplyr::summarise(mean_precip = mean(rre150m0),
                    mean_temp = mean(tre200m0))
 
+# add yearly cluster mean to data_precip
+data_precip <- data_precip |>
+  dplyr::left_join(data_precip_annual) |>
+  dplyr::rename(precip_cluster_mean_annual = precip_cluster_mean)
+
 
 # climate diagrams for the 4 clusters -----------------------
 
