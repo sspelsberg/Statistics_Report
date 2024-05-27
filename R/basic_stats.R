@@ -40,7 +40,8 @@ variables <- readRDS("data_clean/variables.rds")
 
 print(variables_metadata)
 
-station_metadata
+station_metadata |>
+  filter(elev == min(elev) | elev == max(elev))
 
 # data formating --------------------
 

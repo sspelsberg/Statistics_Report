@@ -177,11 +177,12 @@ plot_ly(x = loadings_df_weighted$PC1,
 
 # plot clusters in map
 plot_swiss_map +
-  geom_point(data = station_metadata, aes(x=lon, y=lat, color=cluster_pca_h)) +
+  geom_point(data = station_metadata, aes(x=lon, y=lat, color=cluster_pca_h), size=2) +
   scale_color_brewer(palette = "Set1") +
   labs(title = "Hierarchical precipitation PCA clustering",
        color = "Cluster") # change legend title
 
+ggsave("cluster_map.png", path="figures/")
 # same result as kmeans!!
 
 
