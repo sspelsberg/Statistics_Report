@@ -96,7 +96,6 @@ precip.weights
 
 # would result in first 4 PCAs
 
-# Kaiser's rule (variance explained >1 would result in first 8 PCAs)
 
 
 # plotting the loadings of each station for the first 4 PCs
@@ -171,3 +170,4 @@ for (i in 1:4) {
 }
 
 grid.arrange(grobs=plots, ncol=2)
+
