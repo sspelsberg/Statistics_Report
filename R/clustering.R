@@ -31,7 +31,7 @@ library(monoClust)
 
 theme_set(theme_bw()) # set ggplot theme
 
-
+station_metadata |> select(name, stn, cluster_pca_h, elev, climate_region) |> filter(cluster_pca_h == 1)
 # load data -----------------------
 
 # read meteorological data and turn time into timestamp
@@ -182,7 +182,7 @@ plot_swiss_map +
   labs(title = "Hierarchical precipitation PCA clustering",
        color = "Cluster") # change legend title
 
-ggsave("cluster_map.png", path="figures/")
+ggsave("cluster_map.svg", path="figures/", height = (8.78 / 1.5), width = (5.53 / 1.5))
 # same result as kmeans!!
 
 

@@ -94,6 +94,7 @@ data_clim_diagram |>
   scale_x_continuous(breaks = c(1:12), expand = c(0.01,0.01)) + # modify x ticks and remove space left and right
   theme(panel.grid.major = element_blank()) # remove parts of the grid
 
+ggsave("cluster_climate_diagram.svg", path="figures/", width = (6.5 / 2), height = (5 / 2))
 
 # compute annual mean temp and precip sum
 data_clim_diagram |>
