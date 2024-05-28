@@ -190,8 +190,7 @@ f_critical <- qf(1 - alpha, df1, df2)
 ggplot(data, aes(x = x, y = y)) +
   geom_line(color = "black") +
   geom_area(data = subset(data, x >= f_critical), aes(x = x, y = y), fill = "red", alpha = 0.5) +
-  labs(title = "F Distribution for ANOVA Test",
-       x = "F value",
+  labs(x = "F value",
        y = "Density") +
   geom_segment(aes(x = f_critical, y = 0, xend = f_critical, yend = max(y) / 3.3), linetype = "dashed", color = "red") +
   annotate("text", x = f_critical + 0.2, y = max(y) / 3, label = paste("Critical value =", round(f_critical, 2)), color = "red") +
