@@ -156,7 +156,11 @@ loadings_df_weighted$cluster = as.factor(cluster_cut_weighted)
 # plot the clusters in the dendrogram
 station_dendro <- as.dendrogram(station_cluster)
 station_dendro_col <- color_branches(station_dendro, k = 4) # 4 clusters
-plot(station_dendro_col)
+
+png(filename="figures/dendrogram.png", ) # save plot
+plot(station_dendro_col )
+dev.off()
+
 
 
 # plot clusters in 3D scatterplot
@@ -179,25 +183,13 @@ plot_ly(x = loadings_df_weighted$PC1,
 plot_swiss_map +
   geom_point(data = station_metadata, aes(x=lon, y=lat, color=cluster_pca_h), size=2) +
   scale_color_brewer(palette = "Set1") +
-  labs(title = "Hierarchical precipitation PCA clustering",
+  labs(title = "",
        color = "Cluster") # change legend title
 
-ggsave("cluster_map.svg", path="figures/", height = (8.78 / 1.5), width = (5.53 / 1.5))
+ggsave("cluster_map.svg", path="figures/", height = (8.78 / 1.1), width = (5.53 / 1.1))
 # same result as kmeans!!
 
 
-# visualize loadings for the 4 PCA depending on station ------------
-
-# create dataframe with station metadata and loadings
-station_metadata_pca <- left_join(station_metadata, loadings_df)
-
-plot_swiss_map +
-  geom_point(data = station_metadata_pca, aes(x=lon, y=lat, color=PC4)) +
-  scale_color_viridis()
-#  labs(title = "PC3 loadings",
-#       color = "loading") # change legend title
-
-scico_palette_show()
 
 
 

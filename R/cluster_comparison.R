@@ -88,13 +88,13 @@ data_clim_diagram |>
   geom_hline(yintercept = 0, linewidth = 0.3) + # black line at 0
   geom_col(aes(y = mean_precip * 0.5), fill = "#2b94c4", alpha = 0.5) + # add precip bars and set transparency to 0.5
   geom_line(color = "#d91f00", linewidth = 0.8) + # add temperature data
-  facet_wrap(~cluster_pca_h) + # split by cluster
+  facet_wrap(~cluster_pca_h, nrow = 1) + # split by cluster
   scale_y_continuous("Mean Temperature [°C]",
                      sec.axis = sec_axis(~ . * 2, name = "Mean Precipitation [mm]")) + # add the second y axis
   scale_x_continuous(breaks = c(1:12), expand = c(0.01,0.01)) + # modify x ticks and remove space left and right
   theme(panel.grid.major = element_blank()) # remove parts of the grid
 
-ggsave("cluster_climate_diagram.svg", path="figures/", width = (6.5 / 2), height = (5 / 2))
+ggsave("cluster_climate_diagram.svg", path="figures/", width = 7, height = 2)
 
 # compute annual mean temp and precip sum
 data_clim_diagram |>
