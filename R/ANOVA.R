@@ -168,10 +168,25 @@ welch_ttest_results <- do.call(rbind, lapply(cluster_pairs, perform_welch_ttest,
 # Print the results
 print(welch_ttest_results)
 
+# Define sample sizes and variances for each group (Example variances)
+n <- 24
+k <- 4
+variances <- c(1.5, 2.0, 2.5, 3.0)  # Replace with actual variances
 
+# Calculate the weights
+weights <- variances / n
+
+# Calculate the numerator for the denominator degrees of freedom
+numerator <- sum(weights)^2
+denominator <- sum((weights^2) / (n - 1))
+
+# Calculate Welch's denominator degrees of freedom
+df2 <- round(numerator / denominator)
+
+# Numerator degrees of freedom for ANOVA
+df1 <- k - 1
 # plot an F distribution
-df1 <- 3
-df2 <- 20
+
 
 # Generate a sequence of x values (F-statistic values)
 x <- seq(0, 5, length.out = 100)
@@ -196,3 +211,4 @@ ggplot(data, aes(x = x, y = y)) +
   annotate("text", x = f_critical + 0.2, y = max(y) / 3, label = paste("Critical value =", round(f_critical, 2)), color = "red") +
   annotate("text", x = f_critical + 1, y = max(y) / 7, label = paste("alpha =", alpha), color = "red")+
   theme_bw()
+
