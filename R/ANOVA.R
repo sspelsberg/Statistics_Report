@@ -169,4 +169,31 @@ welch_ttest_results <- do.call(rbind, lapply(cluster_pairs, perform_welch_ttest,
 print(welch_ttest_results)
 
 
+# plot an F distribution
+df1 <- 3
+df2 <- 20
 
+# Generate a sequence of x values (F-statistic values)
+x <- seq(0, 5, length.out = 100)
+
+# Compute the corresponding y values (density of the F distribution)
+y <- df(x, df1, df2)
+
+# Create a data frame for plotting
+data <- data.frame(x = x, y = y)
+
+# Calculate the critical value for the 5% rejection region
+alpha <- 0.05
+f_critical <- qf(1 - alpha, df1, df2)
+
+
+ggplot(data, aes(x = x, y = y)) +
+  geom_line(color = "black") +
+  geom_area(data = subset(data, x >= f_critical), aes(x = x, y = y), fill = "red", alpha = 0.5) +
+  labs(title = "F Distribution for ANOVA Test",
+       x = "F value",
+       y = "Density") +
+  geom_segment(aes(x = f_critical, y = 0, xend = f_critical, yend = max(y) / 3.3), linetype = "dashed", color = "red") +
+  annotate("text", x = f_critical + 0.2, y = max(y) / 3, label = paste("Critical value =", round(f_critical, 2)), color = "red") +
+  annotate("text", x = f_critical + 1, y = max(y) / 7, label = paste("alpha =", alpha), color = "red")+
+  theme_bw()
