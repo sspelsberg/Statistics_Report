@@ -30,6 +30,7 @@ station_metadata <- read.csv("data_clean/station_metadata.csv")
 variables_metadata <- read.table("metadata/variables_metadata.txt", header = T, sep = ",")
 station_names <- readRDS("data_clean/station_names.rds")
 variables <- readRDS("data_clean/variables.rds")
+precip_data <- read.csv("data_clean/data_precip.csv")
 
 summ_data <- summary(data)
 print(summ_data)
@@ -80,3 +81,18 @@ for (i in seq(mvn_results)){
   print(mvn_results[[i]]$multivariateNormality)
 }
 
+
+
+
+# PRECIPITATION DATA MVN ######################################################
+
+# prepare data for MVN test
+wide_precip <- precip_data |>
+  pivot_wider(names_from = stn, values_from = rre150m0, id_cols = time) |>
+  select(-time)
+
+mvn.precip <- mvn(data = wide_precip,
+                  mvnTest = "hz",
+                  multivariateOutlierMethod = "quan",
+                  showOutliers = TRUE)
+print(mvn.precip$multivariateNormality) # not MVN
