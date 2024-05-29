@@ -96,3 +96,5 @@ mvn.precip <- mvn(data = wide_precip,
                   multivariateOutlierMethod = "quan",
                   showOutliers = TRUE)
 print(mvn.precip$multivariateNormality) # not MVN
+
+
