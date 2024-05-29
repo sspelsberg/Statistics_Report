@@ -43,6 +43,29 @@ ggsave("loading_map.png", path="figures/")
 
 scico_palette_show()
 
+nrow(pivot_data)
+# plot correlation matrix between all stations ------------------
+
+# scatterplot matrix with mean values for the stations
+pivot_data |>
+  ggpairs()
+
+# correlation matrix
+cor_precip_stations <- cor(pivot_data)
+corrplot::corrplot(cor_precip_stations, method="color", type="lower", col.lim = c(-0.1, 1),)
+
+# set the diagonal to NA
+cor_precip_stations[cor_precip_stations == 1] = NA
+
+# find min and max values
+max(cor_precip_stations[!is.na(cor_precip_stations)]) # 0.9434508
+min(cor_precip_stations[!is.na(cor_precip_stations)]) #-0.01367337
+
+# between which stations?
+cor_precip_stations == max(cor_precip_stations[!is.na(cor_precip_stations)]) # sam and sia
+
+cov(pivot_data)
+
 
 # plot the PCA timeseries -----------------------------
 

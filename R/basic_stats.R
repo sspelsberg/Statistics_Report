@@ -39,9 +39,16 @@ station_names <- readRDS("data_clean/station_names.rds")
 variables <- readRDS("data_clean/variables.rds")
 
 print(variables_metadata)
+print(station_metadata)
 
 station_metadata |>
   filter(elev == min(elev) | elev == max(elev))
+
+
+cor(station_metadata_pca$elev, station_metadata_pca$PC4)
+cov_precip <- cov(scaled_data)
+
+round(cov_precip, 6) == round(cor(scaled_data), 6)
 
 # data formating --------------------
 
@@ -58,6 +65,7 @@ data_long$stn <- factor(data_long$stn,
 data$stn <- factor(data$stn,
                    levels = (station_metadata |> arrange(elev))$stn)
 
+max(data$time)
 
 # stats summary -------------------------
 
@@ -83,6 +91,9 @@ data |>
   group_by(stn) |>
   arrange(time) |>
   slice(1L)
+
+station_metadata |>
+  select(name, stn, cluster_pca_h, elev, climate_region)
 
 
 # easy summary plots -----------------
