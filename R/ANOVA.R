@@ -13,7 +13,7 @@ library(lubridate) # datetime objects
 library(multcomp)
 library(MASS)
 library(car)
-
+library(rstatix)
 
 # read meteorological data and turn time into timestamp
 data <- read.csv("data_clean/data.csv") |>
@@ -167,6 +167,10 @@ welch_ttest_results <- do.call(rbind, lapply(cluster_pairs, perform_welch_ttest,
 
 # Print the results
 print(welch_ttest_results)
+
+# Games Howell test
+GH_test <- games_howell_test(reduced_data, formula = precip_annual~cluster_pca_h)
+print(GH_test)
 
 # Define sample sizes and variances for each group (Example variances)
 n <- 24
