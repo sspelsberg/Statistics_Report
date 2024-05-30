@@ -86,10 +86,10 @@ for (i in seq(mvn_results)){
 
 # PRECIPITATION DATA MVN ######################################################
 
-# prepare data for MVN test
+
 wide_precip <- precip_data |>
   pivot_wider(names_from = stn, values_from = rre150m0, id_cols = time) |>
-  select(-time)
+  dplyr::select(-time)
 
 mvn.precip <- mvn(data = wide_precip,
                   mvnTest = "hz",
@@ -98,3 +98,21 @@ mvn.precip <- mvn(data = wide_precip,
 print(mvn.precip$multivariateNormality) # not MVN
 
 
+normality_func <- function(data) {
+  result_df <- data.frame(
+    Variable = names(data),
+    Statistic = rep(NA, ncol(data)),
+    P_Value = rep(NA, ncol(data)),
+    Normal = rep(NA, ncol(data))
+  )
+
+  for(i in seq_along(data)) {
+    result <- shapiro.test(data[[i]])
+    result_df[i, c("Statistic", "P_Value")] <- unlist(result[1:2])
+    result_df[i, "Normal"] <- ifelse(result$p.value > 0.05, "Yes", "No")
+  }
+
+  return(result_df)
+}
+
+normality_precip <- normality_func(wide_precip)

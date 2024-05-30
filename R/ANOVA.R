@@ -15,6 +15,7 @@ library(MASS)
 library(car)
 library(rstatix)
 
+theme_set(theme_bw())
 # read meteorological data and turn time into timestamp
 data <- read.csv("data_clean/data.csv") |>
   mutate(time = lubridate::ym(time))
@@ -169,7 +170,7 @@ welch_ttest_results <- do.call(rbind, lapply(cluster_pairs, perform_welch_ttest,
 print(welch_ttest_results)
 
 # Games Howell test
-GH_test <- games_howell_test(reduced_data, formula = precip_annual~cluster_pca_h)
+GH_test <- games_howell_test(reduced_data, formula = precip_cluster_mean~cluster_pca_h)
 print(GH_test)
 
 # Define sample sizes and variances for each group (Example variances)
@@ -215,4 +216,22 @@ ggplot(data, aes(x = x, y = y)) +
   annotate("text", x = f_critical + 0.2, y = max(y) / 3, label = paste("Critical value =", round(f_critical, 2)), color = "red") +
   annotate("text", x = f_critical + 1, y = max(y) / 7, label = paste("alpha =", alpha), color = "red")+
   theme_bw()
+
+
+
+# Boxplot of the precip data
+reduced_data |>
+  ggplot(aes(cluster_pca_h, precip_cluster_mean, fill=as.factor(cluster_pca_h))) +
+    geom_boxplot(notch = FALSE) +
+    labs(x = "Cluster", y = "Mean precipitation (mm)") +
+    scale_fill_brewer(palette = "Set1")
+
+
+median_precip <- reduced_data %>%
+  group_by(cluster_pca_h) %>%
+  summarise(MedianPrecipitation = median(precip_cluster_mean, na.rm = TRUE))
+
+sd_precip <- reduced_data %>%
+  group_by(cluster_pca_h) %>%
+  summarise(VariancePrecipitation = sd(precip_cluster_mean, na.rm = TRUE))
 
